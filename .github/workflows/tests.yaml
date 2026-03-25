@@ -28,4 +28,3 @@ jobs:
       with:
         paths: |
           report.xml
-
