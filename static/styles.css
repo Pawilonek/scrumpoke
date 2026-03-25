@@ -204,6 +204,16 @@ body {
   }
 }
 
+/* Aside matches grid row height; center participants (and error) vertically in that column */
+.room-grid > aside {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  gap: 1rem;
+  min-height: 0;
+}
+
 .room-controls-row {
   display: flex;
   flex-direction: column;
