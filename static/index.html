@@ -43,7 +43,7 @@
               placeholder="e.g. happy-bunny"
             />
             <div class="field-hint">
-              Leave empty to create a random room.
+              We suggest a random room; clear the field to get another when you join.
             </div>
           </label>
 
@@ -59,68 +59,72 @@
 
     <!-- Room -->
     <main id="room-view" class="room-main hidden">
-      <div class="room-grid">
-        <!-- Left column -->
-        <section>
-          <div class="room-controls-row">
-            <div class="room-controls-name">
-              <label class="field-label">
-                <span class="field-label-text">Your name</span>
-                <input
-                  id="room-name-input"
-                  class="input-text"
-                  type="text"
-                  autocomplete="off"
-                />
-              </label>
-              <div class="field-hint">
-                Allowed: letters, numbers and spaces.
+      <div class="room-layout">
+        <div class="room-game-area">
+          <div class="room-grid">
+            <!-- Left column -->
+            <section>
+              <div class="room-controls-row">
+                <div class="room-controls-name">
+                  <label class="field-label">
+                    <span class="field-label-text">Your name</span>
+                    <input
+                      id="room-name-input"
+                      class="input-text"
+                      type="text"
+                      autocomplete="off"
+                    />
+                  </label>
+                  <div class="field-hint">
+                    Allowed: letters, numbers and spaces.
+                  </div>
+                </div>
+
+                <div class="room-controls-cards">
+                  <label class="field-label">
+                    <span class="field-label-text">Available cards (comma-separated)</span>
+                    <input
+                      id="cards-edit-input"
+                      class="input-text"
+                      type="text"
+                    />
+                  </label>
+                  <button id="cards-edit-button" class="btn-secondary" type="button">
+                    Update cards
+                  </button>
+                </div>
               </div>
-            </div>
 
-            <div class="room-controls-cards">
-              <label class="field-label">
-                <span class="field-label-text">Available cards (comma-separated)</span>
-                <input
-                  id="cards-edit-input"
-                  class="input-text"
-                  type="text"
-                />
-              </label>
-              <button id="cards-edit-button" class="btn-secondary" type="button">
-                Update cards
-              </button>
-            </div>
-          </div>
-
-          <div class="seat-circle-wrap">
-            <div id="seat-circle" class="seat-circle">
-              <div class="seat-circle-center">
-                <button id="reveal-button" class="btn-reveal" type="button">
-                  Reveal cards
-                </button>
+              <div class="seat-circle-wrap">
+                <div id="seat-circle" class="seat-circle">
+                  <div class="seat-circle-center">
+                    <button id="reveal-button" class="btn-reveal" type="button">
+                      Reveal cards
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            </section>
+
+            <!-- Right column -->
+            <aside>
+              <div class="participants-panel">
+                <div class="participants-header">
+                  <span>Participants</span>
+                  <span id="participants-count" class="participants-count"></span>
+                </div>
+                <div id="players-list" class="players-list"></div>
+              </div>
+
+              <div id="room-error" class="room-error hidden"></div>
+            </aside>
           </div>
-        </section>
+        </div>
 
-        <!-- Right column -->
-        <aside>
-          <div class="participants-panel">
-            <div class="participants-header">
-              <span>Participants</span>
-              <span id="participants-count" class="participants-count"></span>
-            </div>
-            <div id="players-list" class="players-list"></div>
+        <div id="cards-dock" class="cards-dock">
+          <div class="cards-dock-inner">
+            <div id="cards-list" class="cards-list"></div>
           </div>
-
-          <div id="room-error" class="room-error hidden"></div>
-        </aside>
-      </div>
-
-      <div id="cards-dock" class="cards-dock">
-        <div class="cards-dock-inner">
-          <div id="cards-list" class="cards-list"></div>
         </div>
       </div>
     </main>

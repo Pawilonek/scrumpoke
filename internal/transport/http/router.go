@@ -27,6 +27,16 @@ func RegisterRoutes(e *echo.Echo, deps RouterDeps) {
 		return c.File("static/index.html")
 	})
 
+	// Dictionary-backed defaults for the join form (same generators as /join fallbacks).
+	joinDefaultsHandler := func(c *echo.Context) error {
+		return c.JSON(http.StatusOK, joinDefaultsResponse{
+			Name: game.RandomPlayerName(),
+			Room: game.RandomRoomSlug(),
+		})
+	}
+	e.GET("/api/join-defaults", joinDefaultsHandler)
+	e.GET("/join-defaults", joinDefaultsHandler)
+
 	e.POST("/join", func(c *echo.Context) error {
 		var req joinRequest
 		if err := c.Bind(&req); err != nil {
@@ -60,6 +70,7 @@ func RegisterRoutes(e *echo.Echo, deps RouterDeps) {
 
 		return c.JSON(http.StatusOK, joinResponse{
 			Room:  roomSlug,
+			Name:  name,
 			UUID:  uuid,
 			Token: token,
 		})
@@ -75,8 +86,14 @@ type joinRequest struct {
 	UUID string `json:"uuid,omitempty"`
 }
 
+type joinDefaultsResponse struct {
+	Name string `json:"name"`
+	Room string `json:"room"`
+}
+
 type joinResponse struct {
 	Room  string `json:"room"`
+	Name  string `json:"name"`
 	UUID  string `json:"uuid"`
 	Token string `json:"token"`
 }

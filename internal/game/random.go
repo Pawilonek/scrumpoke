@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"fmt"
 	"strings"
-	"time"
 )
 
 func RandomUUID() string {
@@ -39,8 +38,31 @@ func randomFromCharset(n int, charset string) string {
 	return string(out)
 }
 
+func randIntn(n int) int {
+	if n <= 0 {
+		return 0
+	}
+	var buf [8]byte
+	_, _ = rand.Read(buf[:])
+	return int(binary.LittleEndian.Uint64(buf[:]) % uint64(n))
+}
+
 func RandomRoomSlug() string {
-	// Matches [a-z0-9-] and is URL-friendly.
+	const maxTries = 128
+	for range maxTries {
+		a := embeddedAdjectives[randIntn(len(embeddedAdjectives))]
+		noun := embeddedNouns[randIntn(len(embeddedNouns))]
+		adjPart := slugifyWord(a)
+		nounPart := slugifyWord(noun)
+		if adjPart == "" || nounPart == "" {
+			continue
+		}
+		slug := adjPart + "-" + nounPart
+		if err := ValidateRoomSlug(slug); err == nil {
+			return slug
+		}
+	}
+	// Fallback: alphanumeric slug (always valid).
 	const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
 	return strings.ToLower(
 		fmt.Sprintf("%s-%s", randomFromCharset(6, chars), randomFromCharset(4, chars)),
@@ -48,16 +70,20 @@ func RandomRoomSlug() string {
 }
 
 func RandomPlayerName() string {
-	// Allowed chars are letters/digits/spaces only.
-	// Keep it short to satisfy backend limits.
-	adjs := []string{"Scrum", "Poke", "Swift", "Brave", "Calm", "Turbo", "Quick", "Dapper"}
-
-	seed := time.Now().UnixNano()
-	a := adjs[int(seed%int64(len(adjs)))]
-	// Add randomness so names don't repeat too much.
-	var buf [8]byte
-	_, _ = rand.Read(buf[:])
-	rnd := binary.LittleEndian.Uint32(buf[:4]) % 10000
-	return fmt.Sprintf("%s %d", a, rnd)
+	const maxTries = 128
+	for range maxTries {
+		noun := embeddedNouns[randIntn(len(embeddedNouns))]
+		raw := normalizeNounForPlayerName(noun)
+		if raw == "" {
+			continue
+		}
+		name := titlePlayerName(raw)
+		if _, err := ValidatePlayerName(name); err == nil {
+			return name
+		}
+	}
+	// Fallback if every pick normalizes badly.
+	const chars = "abcdefghijklmnopqrstuvwxyz"
+	return fmt.Sprintf("Player %s", randomFromCharset(6, chars))
 }
 

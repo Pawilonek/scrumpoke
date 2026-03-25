@@ -126,25 +126,33 @@ function openWebSocketWhenReady(roomKey, tok) {
   });
 }
 
-function randInt(min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
+/** Names we used when /api/join-defaults failed; do not treat as a chosen nickname on reload. */
+function isGenericPlaceholderName(name) {
+  const s = (name || "").trim();
+  return s === "Player" || s === "Guest";
 }
 
-function randomPlayerName() {
-  const adjs = ["Scrum", "Poke", "Swift", "Brave", "Calm", "Turbo", "Quick", "Dapper"];
-  const a = adjs[randInt(0, adjs.length - 1)];
-  const n = randInt(1000, 9999);
-  return `${a} ${n}`;
+function resolveDisplayNameFromProfile(profile, defaults) {
+  const prev =
+    profile && profile.name && validateName(profile.name) ? profile.name.trim() : "";
+  if (prev && !isGenericPlaceholderName(prev)) return prev;
+  return defaults.name;
 }
 
-function randomRoomSlug() {
-  const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
-  const part = (len) => {
-    let s = "";
-    for (let i = 0; i < len; i++) s += chars[randInt(0, chars.length - 1)];
-    return s;
-  };
-  return `${part(6)}-${part(4)}`;
+/** Server uses the same dictionary-backed generators as /join when fields are invalid or empty. */
+async function fetchJoinDefaultsLoose() {
+  try {
+    const res = await fetch("/api/join-defaults");
+    if (!res.ok) throw new Error("bad status");
+    const body = await res.json();
+    if (typeof body.name !== "string" || !body.name.trim()) throw new Error("bad name");
+    return {
+      name: body.name.trim(),
+      room: typeof body.room === "string" ? body.room.trim() : "",
+    };
+  } catch {
+    return { name: "Guest", room: "" };
+  }
 }
 
 function validateName(name) {
@@ -205,7 +213,7 @@ function setView(view) {
   if (room) room.classList.toggle("hidden", view !== "room");
 }
 
-function joinPageInit() {
+async function joinPageInit() {
   setView("welcome");
   renderIconInto("join-button-icon", heroIconJoin());
 
@@ -215,11 +223,17 @@ function joinPageInit() {
   const joinBtn = $("join-button");
   const joinError = $("join-error");
 
-  const fallbackName = randomPlayerName();
-  if (profile && profile.name && validateName(profile.name)) {
-    nameInput.value = profile.name.trim();
-  } else {
-    nameInput.value = fallbackName;
+  if (joinBtn) joinBtn.disabled = true;
+  const defaults = await fetchJoinDefaultsLoose();
+  if (joinBtn) joinBtn.disabled = false;
+
+  const fallbackName = defaults.name;
+  const savedName =
+    profile && profile.name && validateName(profile.name) ? profile.name.trim() : "";
+  const useSavedName = savedName && !isGenericPlaceholderName(savedName);
+  nameInput.value = useSavedName ? savedName : fallbackName;
+  if (roomInput && defaults.room && isValidRoomSlug(defaults.room)) {
+    roomInput.value = defaults.room;
   }
 
   const uuid = profile ? profile.uuid : "";
@@ -250,7 +264,7 @@ function joinPageInit() {
         throw new Error(body.error || `Join failed (${res.status})`);
       }
       const data = await res.json();
-      saveLocal(data.uuid, data.token, name);
+      saveLocal(data.uuid, data.token, data.name || name);
       window.location.href = `/room/${encodeURIComponent(data.room)}`;
     } catch (err) {
       joinError.textContent = String(err?.message || err || "Join failed");
@@ -310,13 +324,10 @@ async function roomViewInit() {
       effectiveUUID = profile.uuid;
     } else {
       const uuid = profile?.uuid || "";
-      const prevName =
-        profile && profile.name && validateName(profile.name)
-          ? profile.name.trim()
-          : "";
-      const displayName = prevName || randomPlayerName();
+      const d = await fetchJoinDefaultsLoose();
+      const displayName = resolveDisplayNameFromProfile(profile, d);
       const body = await postJoin(roomKey, displayName, uuid);
-      saveLocal(body.uuid, body.token, displayName);
+      saveLocal(body.uuid, body.token, body.name || displayName);
       token = body.token;
       effectiveUUID = body.uuid;
       if (body.room && body.room !== roomKey) {
@@ -514,10 +525,10 @@ async function roomViewInit() {
   } catch {
     try {
       const p = readProfile();
-      const prevName =
-        p && p.name && validateName(p.name) ? p.name.trim() : randomPlayerName();
+      const d = await fetchJoinDefaultsLoose();
+      const prevName = resolveDisplayNameFromProfile(p, d);
       const body = await postJoin(roomKey, prevName, p?.uuid || "");
-      saveLocal(body.uuid, body.token, prevName);
+      saveLocal(body.uuid, body.token, body.name || prevName);
       token = body.token;
       effectiveUUID = body.uuid;
       if (body.room && body.room !== roomKey) {
@@ -583,7 +594,7 @@ function routeInit() {
   if (path.startsWith("/room/")) {
     void roomViewInit();
   } else {
-    joinPageInit();
+    void joinPageInit();
   }
 }
 
