@@ -168,21 +168,34 @@ body {
 /* Room layout */
 .room-main {
   min-height: 100vh;
-  padding: 2rem 1rem 10rem;
+  display: flex;
+  flex-direction: column;
+  padding: 2rem 1rem;
 }
 
-@media (min-width: 768px) {
-  .room-main {
-    padding-bottom: 11rem;
-  }
+.room-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  min-height: 0;
+  gap: 1.5rem;
+}
+
+.room-game-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .room-grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1.5rem;
-  max-width: 72rem;
-  margin: 0 auto;
+  width: 100%;
+  margin-block: auto;
 }
 
 @media (min-width: 768px) {
@@ -321,18 +334,14 @@ body {
 }
 
 .cards-dock {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 20;
+  margin-top: auto;
+  flex-shrink: 0;
   padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .cards-dock-inner {
-  max-width: 72rem;
-  margin: 0 auto;
-  padding: 0 1rem 1rem;
+  width: 100%;
+  padding-bottom: 0.5rem;
 }
 
 .cards-list {
