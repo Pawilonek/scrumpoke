@@ -1,0 +1,532 @@
+/* Scrumpoke — vanilla layout and components */
+
+:root {
+  --bg-body: #071018;
+  --text: #fff;
+  --text-muted: rgba(255, 255, 255, 0.8);
+  --text-subtle: rgba(255, 255, 255, 0.5);
+  --border: rgba(255, 255, 255, 0.1);
+  --panel: rgba(255, 255, 255, 0.05);
+  --input-bg: rgba(0, 0, 0, 0.3);
+  --emerald: #10b981;
+  --emerald-hover: #34d399;
+  --emerald-muted: rgba(16, 185, 129, 0.45);
+  --emerald-ring: rgba(16, 185, 129, 0.35);
+  --emerald-soft-bg: rgba(16, 185, 129, 0.2);
+  --emerald-soft-text: #a7f3d0;
+  --red-soft: #fca5a5;
+  --red-panel-bg: rgba(239, 68, 68, 0.1);
+  --red-panel-border: rgba(239, 68, 68, 0.3);
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1rem;
+  --focus-ring: 0 0 0 2px var(--emerald-hover);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg-body);
+  color: var(--text);
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+  line-height: 1.5;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Welcome */
+.welcome-main {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2.5rem 1rem;
+}
+
+.welcome-inner {
+  width: 100%;
+  max-width: 36rem;
+}
+
+.welcome-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.welcome-logo {
+  width: 7rem;
+  height: 7rem;
+  object-fit: contain;
+}
+
+.welcome-title {
+  text-align: center;
+  font-size: 2.25rem;
+  line-height: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 1.5rem;
+}
+
+.welcome-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  padding: 1.5rem;
+  backdrop-filter: blur(8px);
+}
+
+.field-label {
+  display: block;
+}
+
+.field-label-text {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 0.25rem;
+}
+
+.field-hint {
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+  margin-top: 0.5rem;
+}
+
+.input-text {
+  width: 100%;
+  border-radius: var(--radius-xl);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  padding: 0.75rem 1rem;
+  color: inherit;
+  font: inherit;
+  outline: none;
+}
+
+.input-text:focus {
+  box-shadow: var(--focus-ring);
+}
+
+.input-text::placeholder {
+  color: var(--text-subtle);
+}
+
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  border: none;
+  border-radius: var(--radius-xl);
+  background: var(--emerald);
+  color: #000;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-primary:hover {
+  background: var(--emerald-hover);
+}
+
+.join-error {
+  font-size: 0.875rem;
+  color: var(--red-soft);
+}
+
+/* Room layout */
+.room-main {
+  min-height: 100vh;
+  padding: 2rem 1rem 10rem;
+}
+
+@media (min-width: 768px) {
+  .room-main {
+    padding-bottom: 11rem;
+  }
+}
+
+.room-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 72rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+  .room-grid {
+    grid-template-columns: 1fr 320px;
+  }
+}
+
+.room-controls-row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+  .room-controls-row {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 1rem;
+  }
+}
+
+.room-controls-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.room-controls-cards {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+@media (min-width: 768px) {
+  .room-controls-cards {
+    width: 20rem;
+    flex-shrink: 0;
+    margin-top: 0;
+  }
+}
+
+.btn-secondary {
+  margin-top: 0.5rem;
+  width: 100%;
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--border);
+  color: inherit;
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.seat-circle-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 36rem;
+  margin: 0 auto;
+}
+
+.seat-circle {
+  position: relative;
+  width: 20rem;
+  height: 20rem;
+  margin: 0 auto;
+}
+
+.seat-circle-center {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+}
+
+.btn-reveal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: none;
+  border-radius: var(--radius-2xl);
+  background: var(--emerald);
+  color: #000;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 1rem 1.5rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-reveal:hover {
+  background: var(--emerald-hover);
+}
+
+.participants-panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-2xl);
+  padding: 1rem;
+}
+
+.participants-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+}
+
+.participants-count {
+  font-size: 0.75rem;
+  color: var(--text-subtle);
+}
+
+.players-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.room-error {
+  margin-top: 1rem;
+  font-size: 0.875rem;
+  color: var(--red-soft);
+  background: var(--red-panel-bg);
+  border: 1px solid var(--red-panel-border);
+  border-radius: var(--radius-xl);
+  padding: 0.75rem;
+}
+
+.cards-dock {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.cards-dock-inner {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 1rem 1rem;
+}
+
+.cards-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+  align-items: stretch;
+  max-width: 56rem;
+  margin: 0 auto;
+}
+
+@media (min-width: 640px) {
+  .cards-list {
+    gap: 1rem;
+  }
+}
+
+/* Participant row (JS) */
+.participant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.participant-row-left {
+  min-width: 0;
+}
+
+.participant-name {
+  font-size: 0.875rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.badge-vote {
+  font-size: 0.75rem;
+  border-radius: 9999px;
+  padding: 0.125rem 0.5rem;
+  flex-shrink: 0;
+}
+
+.badge-vote--on {
+  background: var(--emerald-soft-bg);
+  color: var(--emerald-soft-text);
+}
+
+.badge-vote--off {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Vote card buttons (JS)
+   Use box-shadow instead of border: semi-transparent borders on rounded rects often
+   look uneven at the curves against gradients; a 0-spread shadow traces the radius evenly.
+   Fills stay near --bg-body so the dock feels quiet, not “floating tiles”. */
+.card-vote {
+  --card-stroke: rgba(255, 255, 255, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 5.5rem;
+  border: none;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 0 0 1px var(--card-stroke);
+  text-align: center;
+  line-height: 1.25;
+  padding: 0 0.375rem;
+  user-select: none;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+@media (min-width: 640px) {
+  .card-vote {
+    width: 4rem;
+    height: 6.25rem;
+  }
+}
+
+.card-vote--sm {
+  font-size: 0.875rem;
+}
+
+@media (min-width: 640px) {
+  .card-vote--sm {
+    font-size: 1rem;
+  }
+}
+
+.card-vote--lg {
+  font-size: 1.125rem;
+}
+
+@media (min-width: 640px) {
+  .card-vote--lg {
+    font-size: 1.25rem;
+  }
+}
+
+.card-vote--default {
+  background: linear-gradient(to bottom, #0d1820, #050c12);
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.card-vote--default:hover {
+  --card-stroke: rgba(255, 255, 255, 0.14);
+  background: linear-gradient(to bottom, #111e28, #070f16);
+  color: rgba(255, 255, 255, 0.88);
+  transform: translateY(-10px);
+}
+
+.card-vote--default:active {
+  transform: translateY(0);
+}
+
+.card-vote--revealed {
+  --card-stroke: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(to bottom, #0a1319, #050a0f);
+  color: rgba(255, 255, 255, 0.32);
+  cursor: not-allowed;
+  opacity: 0.92;
+  box-shadow: 0 0 0 1px var(--card-stroke);
+}
+
+.card-vote--revealed:hover {
+  transform: none;
+}
+
+.card-vote--selected {
+  --card-stroke: rgba(16, 185, 129, 0.38);
+  background: linear-gradient(to bottom, rgba(16, 185, 129, 0.14), #050d10);
+  color: rgba(167, 243, 208, 0.92);
+  box-shadow:
+    0 0 0 1px var(--card-stroke),
+    0 0 0 3px rgba(16, 185, 129, 0.12);
+}
+
+.card-vote--selected:hover {
+  --card-stroke: rgba(52, 211, 153, 0.48);
+  background: linear-gradient(to bottom, rgba(16, 185, 129, 0.2), #050d10);
+  color: rgba(209, 250, 229, 0.95);
+  transform: translateY(-10px);
+  box-shadow:
+    0 0 0 1px var(--card-stroke),
+    0 0 0 3px rgba(16, 185, 129, 0.16);
+}
+
+.card-vote--selected:active {
+  transform: translateY(0);
+}
+
+/* Seats around circle (JS) */
+.seat-node {
+  position: absolute;
+  width: 8rem;
+  text-align: center;
+  transform: translate(-50%, -50%);
+}
+
+.seat-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 0.25rem;
+}
+
+.seat-dot {
+  margin: 0.25rem auto 0;
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+}
+
+.seat-dot--voted {
+  background: #34d399;
+}
+
+.seat-dot--idle {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+}

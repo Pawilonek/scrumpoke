@@ -173,7 +173,7 @@ function inRoomPlayers(state) {
 function heroIconJoin() {
   // Heroicons-style outline "user plus" (inline SVG)
   return `
-    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
       <circle cx="9" cy="7" r="4"></circle>
       <line x1="19" y1="8" x2="19" y2="14"></line>
@@ -185,7 +185,7 @@ function heroIconJoin() {
 function heroIconReveal() {
   // Eye icon
   return `
-    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
       <circle cx="12" cy="12" r="3"></circle>
     </svg>
@@ -342,7 +342,9 @@ async function roomViewInit() {
   const cardsEditInput = $("cards-edit-input");
   const cardsEditButton = $("cards-edit-button");
 
-  if (revealButton) revealButton.innerHTML = `${heroIconReveal()} <span class="sr-only">Reveal</span>Reveal cards`;
+  if (revealButton) {
+    revealButton.innerHTML = `${heroIconReveal()}<span class="sr-only">Reveal</span>Reveal cards`;
+  }
 
   let lastState = null;
   let myNameDraft = "";
@@ -355,17 +357,18 @@ async function roomViewInit() {
 
     for (const p of players) {
       const row = document.createElement("div");
-      row.className = "flex items-center justify-between gap-2";
+      row.className = "participant-row";
 
       const left = document.createElement("div");
-      left.className = "min-w-0";
+      left.className = "participant-row-left";
 
       const nameSpan = document.createElement("div");
-      nameSpan.className = "truncate text-sm";
+      nameSpan.className = "participant-name";
       nameSpan.textContent = p.name || "Unknown";
 
       const votedBadge = document.createElement("div");
-      votedBadge.className = "text-xs rounded-full px-2 py-0.5 " + (p.voted ? "bg-emerald-500/20 text-emerald-200" : "bg-white/10 text-white/60");
+      votedBadge.className =
+        "badge-vote " + (p.voted ? "badge-vote--on" : "badge-vote--off");
       votedBadge.textContent = revealed ? (p.card || "—") : (p.voted ? "Voted" : "Not yet");
 
       left.appendChild(nameSpan);
@@ -389,43 +392,24 @@ async function roomViewInit() {
     cardsList.innerHTML = "";
     const cards = state.cards || [];
     const revealed = !!state.revealed;
-
-    const cardFrame =
-      "inline-flex items-center justify-center shrink-0 rounded-xl border-2 text-center leading-tight px-1.5 " +
-      "w-14 h-[5.5rem] sm:w-16 sm:h-[6.25rem] transition select-none font-bold ";
+    const me = (state.players || []).find((x) => x.uuid === effectiveUUID);
+    const selected = me && me.card ? me.card : null;
 
     for (const card of cards) {
       const btn = document.createElement("button");
       btn.type = "button";
       const longLabel = String(card).length > 3;
-      const typeScale = longLabel ? "text-sm sm:text-base " : "text-lg sm:text-xl ";
+      const sizeClass = longLabel ? "card-vote--sm" : "card-vote--lg";
 
-      let face = cardFrame + typeScale;
+      let stateClass = "card-vote--default";
       if (revealed) {
-        face +=
-          "border-white/20 bg-white/[0.04] text-white/35 cursor-not-allowed opacity-90";
-      } else {
-        face +=
-          "border-white/20 bg-gradient-to-b from-slate-800/95 to-slate-950 text-slate-100 " +
-          "hover:from-slate-700 hover:to-slate-900" +
-          "hover:-translate-y-0.5 active:translate-y-0 cursor-pointer";
+        stateClass = "card-vote--revealed";
+      } else if (selected && selected === card) {
+        stateClass = "card-vote--selected";
       }
 
-      btn.className = face;
+      btn.className = `card-vote ${sizeClass} ${stateClass}`;
       btn.textContent = card;
-
-      // Highlight selected card for myself pre-reveal.
-      const me = (state.players || []).find((x) => x.uuid === effectiveUUID);
-      const selected = me && me.card ? me.card : null;
-      if (!revealed && selected && selected === card) {
-        btn.className =
-          cardFrame +
-          typeScale +
-          "border-emerald-500/45 bg-gradient-to-b from-emerald-950/90 to-slate-950 text-emerald-100 " +
-          "ring-2 ring-emerald-500/35 cursor-pointer " +
-          "hover:from-emerald-900/80 hover:to-slate-950 hover:border-emerald-400/55 " +
-          "hover:-translate-y-0.5 active:translate-y-0";
-      }
 
       btn.addEventListener("click", () => {
         if (lastState && lastState.revealed) return;
@@ -453,8 +437,8 @@ async function roomViewInit() {
     const n = players.length;
     if (n === 0) return;
 
-    const radius = 120; // tuned for w-80/h-80
-    const cx = 160; // center in px (w-80 => 320px)
+    const radius = 120; // tuned for .seat-circle (20rem)
+    const cx = 160; // center in px (320px circle)
     const cy = 160;
 
     for (let i = 0; i < n; i++) {
@@ -465,18 +449,16 @@ async function roomViewInit() {
 
       const seat = document.createElement("div");
       seat.dataset.seat = "1";
-      seat.className = "absolute -translate-x-1/2 -translate-y-1/2 w-32 text-center";
+      seat.className = "seat-node";
       seat.style.left = `${x}px`;
       seat.style.top = `${y}px`;
 
       const name = document.createElement("div");
-      name.className = "text-xs font-semibold truncate px-1";
+      name.className = "seat-name";
       name.textContent = p.name;
 
       const dot = document.createElement("div");
-      dot.className =
-        "mt-1 mx-auto w-2.5 h-2.5 rounded-full " +
-        (p.voted ? "bg-emerald-400" : "bg-white/30");
+      dot.className = "seat-dot " + (p.voted ? "seat-dot--voted" : "seat-dot--idle");
 
       seat.appendChild(name);
       seat.appendChild(dot);
@@ -488,14 +470,13 @@ async function roomViewInit() {
     if (!revealButton) return;
     if (state.revealed) {
       revealButton.disabled = false;
-      revealButton.innerHTML = `${heroIconReveal()} Start new voting`;
+      revealButton.innerHTML = `${heroIconReveal()}<span class="sr-only">New voting</span>Start new voting`;
       revealButton.onclick = () => sendWS({ type: "new_voting" });
       return;
     }
-    revealButton.innerHTML = `${heroIconReveal()} Reveal cards`;
+    revealButton.innerHTML = `${heroIconReveal()}<span class="sr-only">Reveal</span>Reveal cards`;
     // Always allow manual reveal; server also auto-reveals when everyone has voted.
     revealButton.disabled = false;
-    revealButton.classList.remove("cursor-not-allowed", "opacity-60");
     revealButton.onclick = () => sendWS({ type: "reveal" });
   }
 

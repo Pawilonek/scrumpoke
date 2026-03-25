@@ -8,104 +8,95 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <title>Scrumpoke</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
     <!-- Welcome -->
-    <main id="welcome-view" class="min-h-screen flex items-center justify-center px-4 py-10">
-      <div class="w-full max-w-xl">
-        <div class="flex items-center justify-center mb-8">
-          <img src="/logo.png" alt="Scrumpoke logo" class="w-28 h-28 object-contain" />
+    <main id="welcome-view" class="welcome-main">
+      <div class="welcome-inner">
+        <div class="welcome-logo-wrap">
+          <img src="/logo.png" alt="Scrumpoke logo" class="welcome-logo" />
         </div>
 
-        <h1 class="text-center text-4xl font-bold mb-6">Scrumpoke</h1>
+        <h1 class="welcome-title">Scrumpoke</h1>
 
-        <div class="space-y-4 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur">
-          <label class="block">
-            <div class="text-sm text-white/80 mb-1">Your name</div>
+        <div class="welcome-panel">
+          <label class="field-label">
+            <div class="field-label-text">Your name</div>
             <input
               id="name-input"
-              class="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
+              class="input-text"
               type="text"
               autocomplete="nickname"
               inputmode="text"
             />
           </label>
 
-          <label class="block">
-            <div class="text-sm text-white/80 mb-1">Room name (optional)</div>
+          <label class="field-label">
+            <div class="field-label-text">Room name (optional)</div>
             <input
               id="room-input"
-              class="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
+              class="input-text"
               type="text"
               autocomplete="off"
               inputmode="text"
               placeholder="e.g. happy-bunny"
             />
-            <div class="text-xs text-white/50 mt-2">
+            <div class="field-hint">
               Leave empty to create a random room.
             </div>
           </label>
 
-          <button
-            id="join-button"
-            class="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-4 py-3 transition"
-            type="button"
-          >
+          <button id="join-button" class="btn-primary" type="button">
             <span id="join-button-icon" aria-hidden="true"></span>
             <span>Join</span>
           </button>
 
-          <div id="join-error" class="hidden text-sm text-red-300"></div>
+          <div id="join-error" class="join-error hidden"></div>
         </div>
       </div>
     </main>
 
     <!-- Room -->
-    <main id="room-view" class="hidden min-h-screen px-4 pt-8 pb-40 md:pb-44">
-      <div class="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 max-w-6xl mx-auto">
+    <main id="room-view" class="room-main hidden">
+      <div class="room-grid">
         <!-- Left column -->
         <section>
-          <div class="flex flex-col md:flex-row md:items-end md:gap-4 mb-4">
-            <div class="flex-1">
-              <label class="block text-sm text-white/80 mb-1">Your name</label>
-              <input
-                id="room-name-input"
-                class="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
-                type="text"
-                autocomplete="off"
-              />
-              <div class="text-xs text-white/50 mt-2">
+          <div class="room-controls-row">
+            <div class="room-controls-name">
+              <label class="field-label">
+                <span class="field-label-text">Your name</span>
+                <input
+                  id="room-name-input"
+                  class="input-text"
+                  type="text"
+                  autocomplete="off"
+                />
+              </label>
+              <div class="field-hint">
                 Allowed: letters, numbers and spaces.
               </div>
             </div>
 
-            <div class="w-full md:w-80 mt-4 md:mt-0">
-              <label class="block text-sm text-white/80 mb-1">Available cards (comma-separated)</label>
-              <input
-                id="cards-edit-input"
-                class="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
-                type="text"
-              />
-              <button
-                id="cards-edit-button"
-                class="mt-2 w-full rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 px-4 py-2 text-sm font-semibold transition"
-                type="button"
-              >
+            <div class="room-controls-cards">
+              <label class="field-label">
+                <span class="field-label-text">Available cards (comma-separated)</span>
+                <input
+                  id="cards-edit-input"
+                  class="input-text"
+                  type="text"
+                />
+              </label>
+              <button id="cards-edit-button" class="btn-secondary" type="button">
                 Update cards
               </button>
             </div>
           </div>
 
-          <div class="relative w-full max-w-xl mx-auto">
-            <div id="seat-circle" class="relative w-80 h-80 mx-auto">
-              <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
-                <button
-                  id="reveal-button"
-                  class="rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-6 py-4 transition"
-                  type="button"
-                >
+          <div class="seat-circle-wrap">
+            <div id="seat-circle" class="seat-circle">
+              <div class="seat-circle-center">
+                <button id="reveal-button" class="btn-reveal" type="button">
                   Reveal cards
                 </button>
               </div>
@@ -115,35 +106,25 @@
 
         <!-- Right column -->
         <aside>
-          <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
-            <div class="text-sm text-white/80 mb-3 flex items-center justify-between">
+          <div class="participants-panel">
+            <div class="participants-header">
               <span>Participants</span>
-              <span id="participants-count" class="text-xs text-white/50"></span>
+              <span id="participants-count" class="participants-count"></span>
             </div>
-            <div id="players-list" class="space-y-2"></div>
+            <div id="players-list" class="players-list"></div>
           </div>
 
-          <div id="room-error" class="hidden mt-4 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl p-3"></div>
+          <div id="room-error" class="room-error hidden"></div>
         </aside>
       </div>
 
-      <div
-        id="cards-dock"
-        class="fixed bottom-0 left-0 right-0 z-20"
-      >
-        <div class="max-w-6xl mx-auto">
-          <div id="cards-list" class="flex flex-wrap gap-3 sm:gap-4 justify-center items-stretch max-w-4xl mx-auto"></div>
+      <div id="cards-dock" class="cards-dock">
+        <div class="cards-dock-inner">
+          <div id="cards-list" class="cards-list"></div>
         </div>
       </div>
     </main>
 
     <script src="/app.js" defer></script>
-
-    <style>
-      body {
-        background: #071018;
-        color: white;
-      }
-    </style>
   </body>
 </html>
