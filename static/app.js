@@ -390,22 +390,41 @@ async function roomViewInit() {
     const cards = state.cards || [];
     const revealed = !!state.revealed;
 
+    const cardFrame =
+      "inline-flex items-center justify-center shrink-0 rounded-xl border-2 text-center leading-tight px-1.5 " +
+      "w-14 h-[5.5rem] sm:w-16 sm:h-[6.25rem] transition select-none font-bold ";
+
     for (const card of cards) {
       const btn = document.createElement("button");
       btn.type = "button";
-      btn.className = "rounded-xl px-4 py-2 text-sm font-semibold border transition " +
-        (revealed
-          ? "bg-white/10 text-white/50 border-white/10 cursor-not-allowed"
-          : "bg-white/5 hover:bg-white/10 text-white border-white/10 cursor-pointer");
+      const longLabel = String(card).length > 3;
+      const typeScale = longLabel ? "text-sm sm:text-base " : "text-lg sm:text-xl ";
 
+      let face = cardFrame + typeScale;
+      if (revealed) {
+        face +=
+          "border-white/20 bg-white/[0.04] text-white/35 cursor-not-allowed opacity-90";
+      } else {
+        face +=
+          "border-white/20 bg-gradient-to-b from-slate-800/95 to-slate-950 text-slate-100 " +
+          "hover:from-slate-700 hover:to-slate-900" +
+          "hover:-translate-y-0.5 active:translate-y-0 cursor-pointer";
+      }
+
+      btn.className = face;
       btn.textContent = card;
 
       // Highlight selected card for myself pre-reveal.
       const me = (state.players || []).find((x) => x.uuid === effectiveUUID);
       const selected = me && me.card ? me.card : null;
       if (!revealed && selected && selected === card) {
-        btn.className = "rounded-xl px-4 py-2 text-sm font-semibold border transition " +
-          "bg-emerald-500/20 text-emerald-200 border-emerald-500/30";
+        btn.className =
+          cardFrame +
+          typeScale +
+          "border-emerald-500/45 bg-gradient-to-b from-emerald-950/90 to-slate-950 text-emerald-100 " +
+          "ring-2 ring-emerald-500/35 cursor-pointer " +
+          "hover:from-emerald-900/80 hover:to-slate-950 hover:border-emerald-400/55 " +
+          "hover:-translate-y-0.5 active:translate-y-0";
       }
 
       btn.addEventListener("click", () => {
