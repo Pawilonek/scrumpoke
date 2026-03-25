@@ -2,71 +2,56 @@ package main
 
 import (
 	"context"
-	"github.com/Pawilonek/scrumpoke/internal/config"
-	"github.com/Pawilonek/scrumpoke/internal/poker"
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
-	"github.com/caarlos0/env/v8"
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/charmbracelet/log"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
 )
 
 func main() {
-	cfg := config.Config{}
-	if err := env.Parse(&cfg); err != nil {
-		log.Printf("%+v\n", err)
-
-		log.Fatal(err)
-	}
+	logger := log.NewWithOptions(os.Stdout, log.Options{
+		ReportTimestamp: true,
+		Level:           log.DebugLevel,
+	})
 
 	e := echo.New()
+	e.Logger = slog.New(logger)
 
-	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
+	e.Use(middleware.RequestLogger())
+	e.Use(middleware.ContextTimeout(60 * time.Second))
+	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20.0)))
+	e.Use(middleware.Static("static"))
 
-	bot, err := tgbotapi.NewBotAPI(cfg.Telegram.Secret)
-	if err != nil {
-		log.Fatal(err)
+	server := &http.Server{
+		Addr:    ":8080",
+		Handler: e,
+		ErrorLog: logger.StandardLog(log.StandardLogOptions{
+			ForceLevel: log.ErrorLevel,
+		}),
 	}
 
-	_, err = bot.MakeRequest("deleteWebhook", tgbotapi.Params{})
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Printf("Authorized on account %s", bot.Self.UserName)
-
-	webhookInfo, err := bot.GetWebhookInfo()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println("webhook set", webhookInfo.IsSet())
-	log.Println("webhook url", webhookInfo.URL)
-
-	pokerBot := poker.NewPoker(bot, cfg.Jira)
-	go pokerBot.Run()
+	logger.Info("starting a web server", "addr", server.Addr)
 
 	go func() {
-		if err := e.Start(":8080"); err != nil && err != http.ErrServerClosed {
-			e.Logger.Fatal("shutting down the server")
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("shutting down the server", "err", err)
 		}
 	}()
 
-	// Wait for interrupt signal to gracefully shutdown the server with a timeout of 10 seconds.
-	// Use a buffered channel to avoid missing signals as recommended for signal.Notify
 	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	if err := e.Shutdown(ctx); err != nil {
-		e.Logger.Fatal(err)
+	if err := server.Shutdown(ctx); err != nil {
+		logger.Fatal("server shutdown failed", "err", err)
 	}
 }
