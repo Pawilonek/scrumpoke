@@ -13,6 +13,14 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
+// Heartbeat: server sends WebSocket pings so readPump's deadline is extended by client pongs
+// (browsers respond automatically). Without this, idle clients hit ReadDeadline and disconnect.
+const (
+	wsWriteWait   = 10 * time.Second
+	wsPongWait    = 90 * time.Second
+	wsPingPeriod  = 45 * time.Second // must be < wsPongWait
+)
+
 type inboundMessage struct {
 	Type      string `json:"type"`
 	Card      string `json:"card,omitempty"`
@@ -115,22 +123,27 @@ func (h *WSHandler) ServeHTTP() echo.HandlerFunc {
 }
 
 func (c *Client) writePump() {
+	ticker := time.NewTicker(wsPingPeriod)
 	defer func() {
+		ticker.Stop()
 		_ = c.conn.Close()
 	}()
 
-	// A simple heartbeat keeps proxies from killing idle connections.
-	_ = c.conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
-	pongHandler := func(string) error {
-		_ = c.conn.SetWriteDeadline(time.Now().Add(30 * time.Second))
-		return nil
-	}
-	c.conn.SetPongHandler(pongHandler)
-
-	for b := range c.send {
-		_ = c.conn.SetWriteDeadline(time.Now().Add(10 * time.Second))
-		if err := c.conn.WriteMessage(websocket.TextMessage, b); err != nil {
-			return
+	for {
+		select {
+		case b, ok := <-c.send:
+			if !ok {
+				return
+			}
+			_ = c.conn.SetWriteDeadline(time.Now().Add(wsWriteWait))
+			if err := c.conn.WriteMessage(websocket.TextMessage, b); err != nil {
+				return
+			}
+		case <-ticker.C:
+			_ = c.conn.SetWriteDeadline(time.Now().Add(wsWriteWait))
+			if err := c.conn.WriteControl(websocket.PingMessage, nil, time.Now().Add(wsWriteWait)); err != nil {
+				return
+			}
 		}
 	}
 }
@@ -146,9 +159,9 @@ func (c *Client) readPump(room *game.Room, uuid string, users *store.InMemoryUse
 
 	// We keep this minimal; app protocol is small.
 	c.conn.SetReadLimit(1 << 20)
-	_ = c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+	_ = c.conn.SetReadDeadline(time.Now().Add(wsPongWait))
 	c.conn.SetPongHandler(func(string) error {
-		_ = c.conn.SetReadDeadline(time.Now().Add(60 * time.Second))
+		_ = c.conn.SetReadDeadline(time.Now().Add(wsPongWait))
 		return nil
 	})
 
