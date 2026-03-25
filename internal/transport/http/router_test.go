@@ -6,12 +6,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
+
 	"github.com/Pawilonek/scrumpoke/internal/auth"
 	"github.com/Pawilonek/scrumpoke/internal/game"
 	"github.com/Pawilonek/scrumpoke/internal/store"
 	"github.com/Pawilonek/scrumpoke/internal/transport/ws"
-	"github.com/labstack/echo/v5"
-	"github.com/labstack/echo/v5/middleware"
 )
 
 func TestJoinDefaultsRoute(t *testing.T) {

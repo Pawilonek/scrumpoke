@@ -10,13 +10,14 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
-	httptransport "github.com/Pawilonek/scrumpoke/internal/transport/http"
+	"github.com/labstack/echo/v5"
+	"github.com/labstack/echo/v5/middleware"
+
 	"github.com/Pawilonek/scrumpoke/internal/auth"
 	"github.com/Pawilonek/scrumpoke/internal/game"
 	"github.com/Pawilonek/scrumpoke/internal/store"
+	httptransport "github.com/Pawilonek/scrumpoke/internal/transport/http"
 	"github.com/Pawilonek/scrumpoke/internal/transport/ws"
-	"github.com/labstack/echo/v5"
-	"github.com/labstack/echo/v5/middleware"
 )
 
 func main() {

@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"sync"
 
-	"github.com/Pawilonek/scrumpoke/internal/auth"
 	"github.com/gorilla/websocket"
+
+	"github.com/Pawilonek/scrumpoke/internal/auth"
 	"github.com/Pawilonek/scrumpoke/internal/game"
 	"github.com/Pawilonek/scrumpoke/internal/store"
 )
@@ -108,12 +109,12 @@ func (h *Hub) unregister(roomSlug, uuid string) {
 }
 
 type stateMessage struct {
-	Type      string                   `json:"type"`
-	Room      string                   `json:"room"`
-	Cards     []string                 `json:"cards"`
-	Revealed  bool                     `json:"revealed"`
-	CanReveal bool                     `json:"canReveal"`
-	Players   []game.PlayerSnapshot   `json:"players"`
+	Type      string                `json:"type"`
+	Room      string                `json:"room"`
+	Cards     []string              `json:"cards"`
+	Revealed  bool                  `json:"revealed"`
+	CanReveal bool                  `json:"canReveal"`
+	Players   []game.PlayerSnapshot `json:"players"`
 }
 
 func stateMessageForClient(snap game.RoomSnapshot, clientUUID string) stateMessage {
@@ -141,11 +142,10 @@ func stateMessageForClient(snap game.RoomSnapshot, clientUUID string) stateMessa
 }
 
 type Client struct {
-	hub *Hub
+	hub  *Hub
 	uuid string
 	room string
 
 	conn *websocket.Conn
 	send chan []byte
 }
-

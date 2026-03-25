@@ -27,11 +27,11 @@ type PlayerSnapshot struct {
 }
 
 type RoomSnapshot struct {
-	Room     string            `json:"room"`
-	Cards    []string          `json:"cards"`
-	Revealed bool              `json:"revealed"`
+	Room      string           `json:"room"`
+	Cards     []string         `json:"cards"`
+	Revealed  bool             `json:"revealed"`
 	CanReveal bool             `json:"canReveal"`
-	Players  []PlayerSnapshot  `json:"players"`
+	Players   []PlayerSnapshot `json:"players"`
 }
 
 // Room is the in-memory game state machine.
@@ -43,22 +43,22 @@ type Room struct {
 	cards    []string
 	revealed bool
 
-	players   map[string]*Player
-	nextSeq    int
+	players map[string]*Player
+	nextSeq int
 
 	gracePeriod time.Duration
-	events       chan<- RoomSnapshot
+	events      chan<- RoomSnapshot
 }
 
 func NewRoom(slug string, initialCards []string, gracePeriod time.Duration, events chan<- RoomSnapshot) *Room {
 	return &Room{
-		slug:          slug,
-		cards:         append([]string(nil), initialCards...),
-		revealed:     false,
-		players:      make(map[string]*Player),
-		nextSeq:      1,
-		gracePeriod:  gracePeriod,
-		events:       events,
+		slug:        slug,
+		cards:       append([]string(nil), initialCards...),
+		revealed:    false,
+		players:     make(map[string]*Player),
+		nextSeq:     1,
+		gracePeriod: gracePeriod,
+		events:      events,
 	}
 }
 
@@ -130,10 +130,10 @@ func (r *Room) UpsertPlayer(uuid, name string) {
 		p.Name = name
 	} else {
 		r.players[uuid] = &Player{
-			UUID:      uuid,
-			Name:      name,
-			Vote:      nil,
-			Connected: false,
+			UUID:       uuid,
+			Name:       name,
+			Vote:       nil,
+			Connected:  false,
 			seqCreated: r.nextSeq,
 		}
 		r.nextSeq++
@@ -298,4 +298,3 @@ func (r *Room) RevealNow() error {
 	r.publishLocked()
 	return nil
 }
-

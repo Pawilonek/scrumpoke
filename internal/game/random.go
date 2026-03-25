@@ -86,4 +86,3 @@ func RandomPlayerName() string {
 	const chars = "abcdefghijklmnopqrstuvwxyz"
 	return fmt.Sprintf("Player %s", randomFromCharset(6, chars))
 }
-

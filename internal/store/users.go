@@ -36,4 +36,3 @@ func (s *InMemoryUsers) Upsert(uuid, name string) {
 	defer s.mu.Unlock()
 	s.users[uuid] = User{UUID: uuid, Name: name}
 }
-

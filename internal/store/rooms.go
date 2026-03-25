@@ -16,7 +16,7 @@ type InMemoryRooms struct {
 	mu           sync.RWMutex
 	rooms        map[string]*game.Room
 	initialCards []string
-	gracePeriod time.Duration
+	gracePeriod  time.Duration
 	events       chan<- game.RoomSnapshot
 }
 
@@ -24,7 +24,7 @@ func NewInMemoryRooms(initialCards []string, gracePeriod time.Duration, events c
 	return &InMemoryRooms{
 		rooms:        make(map[string]*game.Room),
 		initialCards: append([]string(nil), initialCards...),
-		gracePeriod: gracePeriod,
+		gracePeriod:  gracePeriod,
 		events:       events,
 	}
 }
@@ -54,4 +54,3 @@ func (s *InMemoryRooms) GetOrCreate(slug string) *game.Room {
 	s.rooms[slug] = room
 	return room
 }
-

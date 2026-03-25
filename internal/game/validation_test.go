@@ -19,7 +19,7 @@ func TestValidateRoomSlug(t *testing.T) {
 }
 
 func TestValidatePlayerName(t *testing.T) {
-	ok := []string{"Alice 1", "Bob2", "A B C 123", "  Alice  " }
+	ok := []string{"Alice 1", "Bob2", "A B C 123", "  Alice  "}
 	for _, s := range ok {
 		if _, err := ValidatePlayerName(s); err != nil {
 			t.Fatalf("expected ok player name %q: %v", s, err)
@@ -57,4 +57,3 @@ func TestParseCardsTokens(t *testing.T) {
 		t.Fatalf("expected error for invalid token")
 	}
 }
-

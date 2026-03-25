@@ -6,19 +6,20 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gorilla/websocket"
+	"github.com/labstack/echo/v5"
+
 	"github.com/Pawilonek/scrumpoke/internal/auth"
 	"github.com/Pawilonek/scrumpoke/internal/game"
 	"github.com/Pawilonek/scrumpoke/internal/store"
-	"github.com/gorilla/websocket"
-	"github.com/labstack/echo/v5"
 )
 
 // Heartbeat: server sends WebSocket pings so readPump's deadline is extended by client pongs
 // (browsers respond automatically). Without this, idle clients hit ReadDeadline and disconnect.
 const (
-	wsWriteWait   = 10 * time.Second
-	wsPongWait    = 90 * time.Second
-	wsPingPeriod  = 45 * time.Second // must be < wsPongWait
+	wsWriteWait  = 10 * time.Second
+	wsPongWait   = 90 * time.Second
+	wsPingPeriod = 45 * time.Second // must be < wsPongWait
 )
 
 type inboundMessage struct {
@@ -200,4 +201,3 @@ func (c *Client) readPump(room *game.Room, uuid string, users *store.InMemoryUse
 		}
 	}
 }
-

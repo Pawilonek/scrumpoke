@@ -111,4 +111,3 @@ func TestRoomRevealNowAllowsBeforeEveryoneVoted(t *testing.T) {
 		t.Fatalf("expected revealed=true")
 	}
 }
-

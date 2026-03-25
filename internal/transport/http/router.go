@@ -4,11 +4,12 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/labstack/echo/v5"
+
 	"github.com/Pawilonek/scrumpoke/internal/auth"
 	"github.com/Pawilonek/scrumpoke/internal/game"
 	"github.com/Pawilonek/scrumpoke/internal/store"
 	"github.com/Pawilonek/scrumpoke/internal/transport/ws"
-	"github.com/labstack/echo/v5"
 )
 
 type RouterDeps struct {
@@ -121,4 +122,3 @@ func isUUIDLike(s string) bool {
 	}
 	return true
 }
-

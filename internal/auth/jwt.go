@@ -12,9 +12,9 @@ import (
 // JWTIssuer issues and validates user tokens used for WebSocket auth.
 // Tokens are signed with a secret generated on server startup.
 type JWTIssuer struct {
-	secret     []byte
-	tokenTTL   time.Duration
-	clockSkew  time.Duration
+	secret    []byte
+	tokenTTL  time.Duration
+	clockSkew time.Duration
 }
 
 func NewJWTIssuer(tokenTTL time.Duration) (*JWTIssuer, error) {
@@ -92,4 +92,3 @@ func (j *JWTIssuer) Validate(token string) (uuid string, exp time.Time, err erro
 func (j *JWTIssuer) DebugSecretHex() string {
 	return hex.EncodeToString(j.secret)
 }
-

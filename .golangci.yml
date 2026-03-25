@@ -1,0 +1,11 @@
+# Used by golangci/golangci-lint-action in .github/workflows/golangci-lint.yml
+# https://golangci-lint.run/docs/formatters/configuration/#goimports
+version: "2"
+
+formatters:
+  enable:
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/Pawilonek/scrumpoke

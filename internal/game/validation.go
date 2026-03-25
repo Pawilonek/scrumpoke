@@ -100,4 +100,3 @@ func ParseUUIDFromLoose(s string) string {
 	_ = strconv.IntSize
 	return strings.TrimSpace(s)
 }
-
