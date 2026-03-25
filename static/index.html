@@ -8,8 +8,142 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
     <title>Scrumpoke</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
   </head>
   <body>
-    Hello
+    <!-- Welcome -->
+    <main id="welcome-view" class="min-h-screen flex items-center justify-center px-4 py-10">
+      <div class="w-full max-w-xl">
+        <div class="flex items-center justify-center mb-8">
+          <img src="/logo.png" alt="Scrumpoke logo" class="w-28 h-28 object-contain" />
+        </div>
+
+        <h1 class="text-center text-4xl font-bold mb-6">Scrumpoke</h1>
+
+        <div class="space-y-4 bg-white/5 border border-white/10 rounded-2xl p-6 backdrop-blur">
+          <label class="block">
+            <div class="text-sm text-white/80 mb-1">Your name</div>
+            <input
+              id="name-input"
+              class="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
+              type="text"
+              autocomplete="nickname"
+              inputmode="text"
+            />
+          </label>
+
+          <label class="block">
+            <div class="text-sm text-white/80 mb-1">Room name (optional)</div>
+            <input
+              id="room-input"
+              class="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
+              type="text"
+              autocomplete="off"
+              inputmode="text"
+              placeholder="e.g. happy-bunny"
+            />
+            <div class="text-xs text-white/50 mt-2">
+              Leave empty to create a random room.
+            </div>
+          </label>
+
+          <button
+            id="join-button"
+            class="w-full flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-4 py-3 transition"
+            type="button"
+          >
+            <span id="join-button-icon" aria-hidden="true"></span>
+            <span>Join</span>
+          </button>
+
+          <div id="join-error" class="hidden text-sm text-red-300"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Room -->
+    <main id="room-view" class="hidden min-h-screen px-4 py-8">
+      <div class="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-6 max-w-6xl mx-auto">
+        <!-- Left column -->
+        <section>
+          <div class="flex flex-col md:flex-row md:items-end md:gap-4 mb-4">
+            <div class="flex-1">
+              <label class="block text-sm text-white/80 mb-1">Your name</label>
+              <input
+                id="room-name-input"
+                class="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
+                type="text"
+                autocomplete="off"
+              />
+              <div class="text-xs text-white/50 mt-2">
+                Allowed: letters, numbers and spaces.
+              </div>
+            </div>
+
+            <div class="w-full md:w-80 mt-4 md:mt-0">
+              <label class="block text-sm text-white/80 mb-1">Available cards (comma-separated)</label>
+              <input
+                id="cards-edit-input"
+                class="w-full rounded-xl bg-black/30 border border-white/10 px-4 py-3 outline-none focus:ring-2 focus:ring-emerald-400"
+                type="text"
+              />
+              <button
+                id="cards-edit-button"
+                class="mt-2 w-full rounded-xl bg-white/10 hover:bg-white/15 border border-white/10 px-4 py-2 text-sm font-semibold transition"
+                type="button"
+              >
+                Update cards
+              </button>
+            </div>
+          </div>
+
+          <div class="relative w-full max-w-xl mx-auto">
+            <div id="seat-circle" class="relative w-80 h-80 mx-auto">
+              <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
+                <button
+                  id="reveal-button"
+                  class="rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-6 py-4 transition"
+                  type="button"
+                >
+                  Reveal cards
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6">
+            <div class="text-sm text-white/80 mb-2">Cards</div>
+            <div id="cards-list" class="flex flex-wrap gap-2"></div>
+          </div>
+
+          <div class="mt-8 text-xs text-white/50">
+            If everyone voted, reveal triggers automatically.
+          </div>
+        </section>
+
+        <!-- Right column -->
+        <aside>
+          <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+            <div class="text-sm text-white/80 mb-3 flex items-center justify-between">
+              <span>Participants</span>
+              <span id="participants-count" class="text-xs text-white/50"></span>
+            </div>
+            <div id="players-list" class="space-y-2"></div>
+          </div>
+
+          <div id="room-error" class="hidden mt-4 text-sm text-red-300 bg-red-500/10 border border-red-500/30 rounded-xl p-3"></div>
+        </aside>
+      </div>
+    </main>
+
+    <script src="/app.js" defer></script>
+
+    <style>
+      body {
+        background: #071018;
+        color: white;
+      }
+    </style>
   </body>
 </html>

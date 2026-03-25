@@ -10,6 +10,11 @@ import (
 	"time"
 
 	"github.com/charmbracelet/log"
+	httptransport "github.com/Pawilonek/scrumpoke/internal/transport/http"
+	"github.com/Pawilonek/scrumpoke/internal/auth"
+	"github.com/Pawilonek/scrumpoke/internal/game"
+	"github.com/Pawilonek/scrumpoke/internal/store"
+	"github.com/Pawilonek/scrumpoke/internal/transport/ws"
 	"github.com/labstack/echo/v5"
 	"github.com/labstack/echo/v5/middleware"
 )
@@ -28,6 +33,26 @@ func main() {
 	e.Use(middleware.ContextTimeout(60 * time.Second))
 	e.Use(middleware.RateLimiter(middleware.NewRateLimiterMemoryStore(20.0)))
 	e.Use(middleware.Static("static"))
+
+	events := make(chan game.RoomSnapshot, 128)
+	rooms := store.NewInMemoryRooms(game.CardsTokensDefault(), 30*time.Second, events)
+	users := store.NewInMemoryUsers()
+
+	jwtIssuer, err := auth.NewJWTIssuer(30 * 24 * time.Hour)
+	if err != nil {
+		logger.Fatal("failed to create jwt issuer", "err", err)
+	}
+
+	hub := ws.NewHub(rooms, users, jwtIssuer, events)
+	hub.Run()
+	wsHandler := ws.NewWSHandler(rooms, users, jwtIssuer, hub)
+
+	httptransport.RegisterRoutes(e, httptransport.RouterDeps{
+		Rooms: rooms,
+		Users: users,
+		JWT:   jwtIssuer,
+		WS:    wsHandler,
+	})
 
 	server := &http.Server{
 		Addr:    ":8080",
