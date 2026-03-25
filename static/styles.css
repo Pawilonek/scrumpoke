@@ -218,11 +218,6 @@ body {
   }
 }
 
-.room-controls-name {
-  flex: 1;
-  min-width: 0;
-}
-
 .room-controls-cards {
   width: 100%;
   margin-top: 1rem;
@@ -370,13 +365,97 @@ body {
 
 .participant-row-left {
   min-width: 0;
+  display: flex;
+  align-items: center;
 }
 
 .participant-name {
   font-size: 0.875rem;
+  line-height: 1.25;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Your row: same border box as .participant-name-input so display vs edit doesn’t shift */
+.participant-name-edit-slot {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+.participant-name-with-edit {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  min-width: 0;
+  flex: 1;
+  box-sizing: border-box;
+  /* Fixed border-box height + no vertical padding avoids 1px flex vs input mismatch at bottom */
+  height: 1.625rem;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+}
+
+.participant-name-with-edit .participant-name {
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-participant-name-edit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0.125rem;
+  margin: 0;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.btn-participant-name-edit:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-participant-name-edit:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.icon--participant-edit {
+  width: 1rem;
+  height: 1rem;
+}
+
+.participant-name-input {
+  -webkit-appearance: none;
+  appearance: none;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 12rem;
+  height: 1.625rem;
+  margin: 0;
+  border-radius: var(--radius-lg);
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  padding: 0 0.375rem;
+  font: inherit;
+  font-size: 0.875rem;
+  /* Match inner content box after 1px borders (stops baseline sitting 1px high vs plain text) */
+  line-height: calc(1.625rem - 2px);
+  color: inherit;
+  outline: none;
+}
+
+.participant-name-input:focus {
+  box-shadow: var(--focus-ring);
 }
 
 .badge-vote {

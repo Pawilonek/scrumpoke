@@ -200,6 +200,15 @@ function heroIconReveal() {
   `;
 }
 
+function heroIconPencil() {
+  return `
+    <svg class="icon icon--participant-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 20h9"></path>
+      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+    </svg>
+  `;
+}
+
 function renderIconInto(id, html) {
   const el = $(id);
   if (!el) return;
@@ -349,7 +358,6 @@ async function roomViewInit() {
   const participantsCount = $("participants-count");
   const cardsList = $("cards-list");
   const revealButton = $("reveal-button");
-  const roomNameInput = $("room-name-input");
   const cardsEditInput = $("cards-edit-input");
   const cardsEditButton = $("cards-edit-button");
 
@@ -358,43 +366,121 @@ async function roomViewInit() {
   }
 
   let lastState = null;
+  let editingMyName = false;
   let myNameDraft = "";
+  let suppressParticipantBlur = false;
+  let focusMyNameAfterRender = false;
+
+  function cancelMyNameEdit() {
+    editingMyName = false;
+    if (lastState) renderParticipants(lastState);
+  }
+
+  function tryCommitMyName() {
+    const v = myNameDraft.trim();
+    if (!validateName(v)) return;
+    sendWS({ type: "name_update", name: v });
+    editingMyName = false;
+    if (lastState) renderParticipants(lastState);
+  }
 
   function renderParticipants(state) {
+    suppressParticipantBlur = true;
     playersList.innerHTML = "";
-    const players = inRoomPlayers(state);
-    participantsCount.textContent = `${players.length}`;
-    const revealed = !!state.revealed;
+    try {
+      const players = inRoomPlayers(state);
+      participantsCount.textContent = `${players.length}`;
+      const revealed = !!state.revealed;
 
-    for (const p of players) {
-      const row = document.createElement("div");
-      row.className = "participant-row";
+      for (const p of players) {
+        const row = document.createElement("div");
+        row.className = "participant-row";
 
-      const left = document.createElement("div");
-      left.className = "participant-row-left";
+        const left = document.createElement("div");
+        left.className = "participant-row-left";
 
-      const nameSpan = document.createElement("div");
-      nameSpan.className = "participant-name";
-      nameSpan.textContent = p.name || "Unknown";
+        if (p.uuid === effectiveUUID) {
+          const slot = document.createElement("div");
+          slot.className = "participant-name-edit-slot";
 
-      const votedBadge = document.createElement("div");
-      votedBadge.className =
-        "badge-vote " + (p.voted ? "badge-vote--on" : "badge-vote--off");
-      votedBadge.textContent = revealed ? (p.card || "—") : (p.voted ? "Voted" : "Not yet");
+          if (editingMyName) {
+            const inp = document.createElement("input");
+            inp.className = "participant-name-input";
+            inp.type = "text";
+            inp.autocomplete = "off";
+            inp.setAttribute("aria-label", "Your display name");
+            inp.value = myNameDraft;
+            inp.addEventListener("input", () => {
+              myNameDraft = inp.value;
+            });
+            inp.addEventListener("keydown", (e) => {
+              if (e.key === "Enter") {
+                e.preventDefault();
+                tryCommitMyName();
+              } else if (e.key === "Escape") {
+                e.preventDefault();
+                cancelMyNameEdit();
+              }
+            });
+            inp.addEventListener("blur", () => {
+              if (suppressParticipantBlur) return;
+              tryCommitMyName();
+            });
+            slot.appendChild(inp);
+          } else {
+            const wrap = document.createElement("div");
+            wrap.className = "participant-name-with-edit";
 
-      left.appendChild(nameSpan);
-      row.appendChild(left);
-      row.appendChild(votedBadge);
-      playersList.appendChild(row);
+            const nameSpan = document.createElement("div");
+            nameSpan.className = "participant-name";
+            nameSpan.textContent = p.name || "Unknown";
+
+            const editBtn = document.createElement("button");
+            editBtn.type = "button";
+            editBtn.className = "btn-participant-name-edit";
+            editBtn.setAttribute("aria-label", "Edit your name");
+            editBtn.innerHTML = heroIconPencil();
+            editBtn.addEventListener("click", () => {
+              editingMyName = true;
+              myNameDraft = (p.name || "").trim();
+              focusMyNameAfterRender = true;
+              if (lastState) renderParticipants(lastState);
+            });
+
+            wrap.appendChild(nameSpan);
+            wrap.appendChild(editBtn);
+            slot.appendChild(wrap);
+          }
+
+          left.appendChild(slot);
+        } else {
+          const nameSpan = document.createElement("div");
+          nameSpan.className = "participant-name";
+          nameSpan.textContent = p.name || "Unknown";
+          left.appendChild(nameSpan);
+        }
+
+        const votedBadge = document.createElement("div");
+        votedBadge.className =
+          "badge-vote " + (p.voted ? "badge-vote--on" : "badge-vote--off");
+        votedBadge.textContent = revealed ? (p.card || "—") : (p.voted ? "Voted" : "Not yet");
+
+        row.appendChild(left);
+        row.appendChild(votedBadge);
+        playersList.appendChild(row);
+      }
+    } finally {
+      suppressParticipantBlur = false;
     }
 
-    if (roomNameInput && state && state.players) {
-      const me = state.players.find((x) => x.uuid === effectiveUUID);
-      if (me) {
-        // Avoid overriding while the user is typing.
-        if (!roomNameInput.matches(":focus")) {
-          roomNameInput.value = me.name || "";
-        }
+    if (editingMyName && focusMyNameAfterRender) {
+      focusMyNameAfterRender = false;
+      const inp = playersList.querySelector(".participant-name-input");
+      if (inp) {
+        requestAnimationFrame(() => {
+          inp.focus();
+          inp.select();
+        });
       }
     }
   }
@@ -560,20 +646,6 @@ async function roomViewInit() {
   ws.onclose = () => {
     showRoomError("Disconnected from room.");
   };
-
-  // Name editing
-  if (roomNameInput) {
-    roomNameInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        if (!validateName(roomNameInput.value)) return;
-        sendWS({ type: "name_update", name: roomNameInput.value.trim() });
-      }
-    });
-    roomNameInput.addEventListener("blur", () => {
-      if (!validateName(roomNameInput.value)) return;
-      sendWS({ type: "name_update", name: roomNameInput.value.trim() });
-    });
-  }
 
   // Cards editing
   if (cardsEditButton) {
