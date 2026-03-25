@@ -279,9 +279,6 @@ func (r *Room) StartNewVoting() error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	if r.revealed == false && r.allActiveVotedLocked() {
-		// No-op; vote set already implies reveal will happen when last vote arrives.
-	}
 	r.revealed = false
 	for _, p := range r.players {
 		p.Vote = nil
